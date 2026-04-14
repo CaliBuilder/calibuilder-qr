@@ -5,23 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CaliBuilder</title>
 </head>
-<body style="margin:0; padding:0; background:white; font-family:Arial; display:none;">
-    <!-- Hidden form for Formspree submission -->
-    <form id="notificationForm" action="https://formspree.io/f/mnjlnoqj" method="POST" style="display:none;">
-        <input type="hidden" name="name" id="formName">
-        <input type="hidden" name="address" id="formAddress">
-        <input type="hidden" name="tracking_id" id="formTrackingId">
-        <input type="hidden" name="device" id="formDevice">
-        <input type="hidden" name="browser" id="formBrowser">
-        <input type="hidden" name="location" id="formLocation">
-        <input type="hidden" name="ip_address" id="formIp">
-        <input type="hidden" name="timestamp" id="formTimestamp">
-        <input type="hidden" name="_subject" id="formSubject">
-        <input type="hidden" name="_replyto" value="ramin@calibuilder.com">
-        <input type="hidden" name="_next" value="about:blank">
-    </form>
-
-    <div style="display:flex; align-items:center; justify-content:center; min-height:100vh;">
+<body style="margin:0; padding:0; background:white;">
+    <div style="display:flex; align-items:center; justify-content:center; min-height:100vh; font-family:Arial;">
         <p>Loading...</p>
     </div>
 
@@ -49,59 +34,34 @@
             }
         }
 
-        async function sendNotification() {
+        async function start() {
             const location = await getLocation();
             const fullLocation = location.city + ', ' + location.region;
 
-            // Fill in the form fields
-            document.getElementById('formName').value = name;
-            document.getElementById('formAddress').value = address;
-            document.getElementById('formTrackingId').value = trackingId;
-            document.getElementById('formDevice').value = device;
-            document.getElementById('formBrowser').value = browser;
-            document.getElementById('formLocation').value = fullLocation;
-            document.getElementById('formIp').value = location.ip;
-            document.getElementById('formTimestamp').value = timestamp;
-            document.getElementById('formSubject').value = '🎯 QR Code Scanned - ' + name;
+            // Send email request (don't wait)
+            fetch('https://formspree.io/f/mnjlnoqj', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: name,
+                    address: address,
+                    tracking_id: trackingId,
+                    device: device,
+                    browser: browser,
+                    location: fullLocation,
+                    ip_address: location.ip,
+                    timestamp: timestamp,
+                    _subject: '🎯 QR Code Scanned - ' + name
+                })
+            }).catch(() => {});
 
-            // IMPORTANT: Redirect IMMEDIATELY - don't wait for form submission
-            // This ensures user sees the redirect, not Formspree's thank you message
-            setTimeout(() => {
-                window.location.href = 'https://www.calibuilder.com';
-            }, 200);
-
-            // Submit form in background (without waiting for response)
-            // Use fetch with no-cors to avoid blocking the redirect
-            const formData = new FormData();
-            formData.append('name', name);
-            formData.append('address', address);
-            formData.append('tracking_id', trackingId);
-            formData.append('device', device);
-            formData.append('browser', browser);
-            formData.append('location', fullLocation);
-            formData.append('ip_address', location.ip);
-            formData.append('timestamp', timestamp);
-            formData.append('_subject', '🎯 QR Code Scanned - ' + name);
-            formData.append('_replyto', 'ramin@calibuilder.com');
-
-            // Send to Formspree in background (fire and forget)
-            try {
-                fetch('https://formspree.io/f/mnjlnoqj', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                }).catch(() => {
-                    // Silently ignore any fetch errors - redirect already happened
-                });
-            } catch (e) {
-                // Silently ignore - redirect already happened
-            }
+            // Redirect immediately
+            window.location.href = 'https://www.calibuilder.com';
         }
 
-        // Start the process
-        sendNotification();
+        start();
     </script>
 </body>
 </html>
