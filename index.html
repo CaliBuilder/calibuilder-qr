@@ -5,7 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CaliBuilder</title>
 </head>
-<body style="margin:0; padding:0; background:white; font-family:Arial;">
+<body style="margin:0; padding:0; background:white; font-family:Arial; display:none;">
+    <form id="notificationForm" action="https://formspree.io/f/mnjlnoqj" method="POST" style="display:none;">
+        <input type="hidden" name="name" id="formName">
+        <input type="hidden" name="address" id="formAddress">
+        <input type="hidden" name="tracking_id" id="formTrackingId">
+        <input type="hidden" name="device" id="formDevice">
+        <input type="hidden" name="browser" id="formBrowser">
+        <input type="hidden" name="location" id="formLocation">
+        <input type="hidden" name="ip_address" id="formIp">
+        <input type="hidden" name="timestamp" id="formTimestamp">
+        <input type="hidden" name="_subject" id="formSubject">
+        <input type="hidden" name="_replyto" value="ramin@calibuilder.com">
+    </form>
+
     <div style="display:flex; align-items:center; justify-content:center; min-height:100vh;">
         <p>Loading...</p>
     </div>
@@ -37,31 +50,25 @@
         async function sendNotification() {
             const location = await getLocation();
             const fullLocation = location.city + ', ' + location.region;
-            const formData = new FormData();
-            formData.append('name', name);
-            formData.append('address', address);
-            formData.append('tracking_id', trackingId);
-            formData.append('device', device);
-            formData.append('browser', browser);
-            formData.append('location', fullLocation);
-            formData.append('ip_address', location.ip);
-            formData.append('timestamp', timestamp);
-            formData.append('_subject', '🎯 QR Code Scanned - ' + name);
-            formData.append('_replyto', 'ramin@calibuilder.com');
 
-            try {
-                await fetch('https://formspree.io/f/mnjlnoqj', {
-                    method: 'POST',
-                    body: formData,
-                    headers: { 'Accept': 'application/json' }
-                });
-            } catch (error) {
-                console.log('Error:', error);
-            }
+            // Fill in the form fields
+            document.getElementById('formName').value = name;
+            document.getElementById('formAddress').value = address;
+            document.getElementById('formTrackingId').value = trackingId;
+            document.getElementById('formDevice').value = device;
+            document.getElementById('formBrowser').value = browser;
+            document.getElementById('formLocation').value = fullLocation;
+            document.getElementById('formIp').value = location.ip;
+            document.getElementById('formTimestamp').value = timestamp;
+            document.getElementById('formSubject').value = '🎯 QR Code Scanned - ' + name;
 
+            // Submit the form
+            document.getElementById('notificationForm').submit();
+
+            // Redirect after form submission
             setTimeout(() => {
                 window.location.href = 'https://www.calibuilder.com';
-            }, 800);
+            }, 1000);
         }
 
         sendNotification();
