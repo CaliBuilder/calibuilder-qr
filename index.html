@@ -6,6 +6,7 @@
     <title>CaliBuilder</title>
 </head>
 <body style="margin:0; padding:0; background:white; font-family:Arial; display:none;">
+    <!-- Hidden form for Formspree submission -->
     <form id="notificationForm" action="https://formspree.io/f/mnjlnoqj" method="POST" style="display:none;">
         <input type="hidden" name="name" id="formName">
         <input type="hidden" name="address" id="formAddress">
@@ -17,6 +18,7 @@
         <input type="hidden" name="timestamp" id="formTimestamp">
         <input type="hidden" name="_subject" id="formSubject">
         <input type="hidden" name="_replyto" value="ramin@calibuilder.com">
+        <input type="hidden" name="_next" value="about:blank">
     </form>
 
     <div style="display:flex; align-items:center; justify-content:center; min-height:100vh;">
@@ -62,15 +64,43 @@
             document.getElementById('formTimestamp').value = timestamp;
             document.getElementById('formSubject').value = '🎯 QR Code Scanned - ' + name;
 
-            // Submit the form
-            document.getElementById('notificationForm').submit();
-
-            // Redirect after form submission
+            // IMPORTANT: Redirect IMMEDIATELY - don't wait for form submission
+            // This ensures user sees the redirect, not Formspree's thank you message
             setTimeout(() => {
                 window.location.href = 'https://www.calibuilder.com';
-            }, 1000);
+            }, 200);
+
+            // Submit form in background (without waiting for response)
+            // Use fetch with no-cors to avoid blocking the redirect
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('address', address);
+            formData.append('tracking_id', trackingId);
+            formData.append('device', device);
+            formData.append('browser', browser);
+            formData.append('location', fullLocation);
+            formData.append('ip_address', location.ip);
+            formData.append('timestamp', timestamp);
+            formData.append('_subject', '🎯 QR Code Scanned - ' + name);
+            formData.append('_replyto', 'ramin@calibuilder.com');
+
+            // Send to Formspree in background (fire and forget)
+            try {
+                fetch('https://formspree.io/f/mnjlnoqj', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                }).catch(() => {
+                    // Silently ignore any fetch errors - redirect already happened
+                });
+            } catch (e) {
+                // Silently ignore - redirect already happened
+            }
         }
 
+        // Start the process
         sendNotification();
     </script>
 </body>
