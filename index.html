@@ -38,26 +38,31 @@
             const location = await getLocation();
             const fullLocation = location.city + ', ' + location.region;
 
-            // Send email request (don't wait)
-            fetch('https://formspree.io/f/mnjlnoqj', {
+            // Google Form field IDs (you may need to verify these from your form)
+            // Common pattern: entry.XXXXXXXXXX
+            const formId = '1kTf5H0JDZR295FMV7psJqRNe1R8kBRe--DOuaYQ2SwQ';
+            const formUrl = `https://docs.google.com/forms/d/${formId}/formResponse`;
+
+            // Create form data
+            const formData = new FormData();
+            // These entry IDs are typical - you may need to adjust if form fields are different
+            formData.append('entry.1234567890', name);           // Name - adjust if needed
+            formData.append('entry.1234567891', address);        // Address - adjust if needed
+            formData.append('entry.1234567892', trackingId);     // Tracking ID - adjust if needed
+            formData.append('entry.1234567893', device);         // Device - adjust if needed
+            formData.append('entry.1234567894', browser);        // Browser - adjust if needed
+            formData.append('entry.1234567895', fullLocation);   // Location - adjust if needed
+            formData.append('entry.1234567896', location.ip);    // IP - adjust if needed
+            formData.append('entry.1234567897', timestamp);      // Timestamp - adjust if needed
+
+            // Submit to Google Form (in background)
+            fetch(formUrl, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: name,
-                    address: address,
-                    tracking_id: trackingId,
-                    device: device,
-                    browser: browser,
-                    location: fullLocation,
-                    ip_address: location.ip,
-                    timestamp: timestamp,
-                    _subject: '🎯 QR Code Scanned - ' + name
-                })
+                body: formData,
+                mode: 'no-cors'
             }).catch(() => {});
 
-            // Redirect immediately
+            // Redirect immediately (user doesn't wait for form)
             window.location.href = 'https://www.calibuilder.com';
         }
 
