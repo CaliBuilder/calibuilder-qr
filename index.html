@@ -11,50 +11,18 @@
     </div>
 
     <script>
+        // Get parameters from URL
         const params = new URLSearchParams(window.location.search);
         const name = params.get('name') || 'Unknown';
         const address = params.get('address') || 'Unknown';
         const trackingId = params.get('id') || 'unknown';
-        const ua = navigator.userAgent;
-        const device = /mobile|android|iphone|ipad|windows phone/i.test(ua) ? 'Mobile' : 'Desktop';
-        let browser = 'Unknown';
-        if (ua.includes('Chrome')) browser = 'Chrome';
-        else if (ua.includes('Safari')) browser = 'Safari';
-        else if (ua.includes('Firefox')) browser = 'Firefox';
-        else if (ua.includes('Edge')) browser = 'Edge';
-        const timestamp = new Date().toLocaleString();
 
-        async function getLocation() {
-            try {
-                const response = await fetch('https://ipapi.co/json/');
-                const data = await response.json();
-                return { ip: data.ip || 'Unknown', city: data.city || 'Unknown', region: data.region || 'Unknown' };
-            } catch (e) {
-                return { ip: 'Unknown', city: 'Unknown', region: 'Unknown' };
-            }
-        }
+        // Redirect directly to Squarespace form with parameters
+        const squareUrl = 'https://kangaroo-clownfish-y62l.squarespace.com/qr-code-tracker-form?name=' + 
+            encodeURIComponent(name) + '&address=' + encodeURIComponent(address) +
+            '&id=' + encodeURIComponent(trackingId);
 
-        async function start() {
-            const location = await getLocation();
-            const fullLocation = location.city + ', ' + location.region;
-
-            // REDIRECT IMMEDIATELY
-            window.location.href = 'https://www.calibuilder.com';
-
-            // Send email notification in background
-            setTimeout(() => {
-                try {
-                    fetch('https://script.google.com/macros/d/AKfycbyK1pWJuApueCThqQGqT_sY-T7mY-1UnXskJ01HZVjoXSJ9nXTFgwePKkX16hyKOOxH3A/usercontent?name=' +
-                        encodeURIComponent(name) + '&address=' + encodeURIComponent(address) +
-                        '&id=' + encodeURIComponent(trackingId) + '&device=' + encodeURIComponent(device) +
-                        '&browser=' + encodeURIComponent(browser) + '&location=' + encodeURIComponent(fullLocation) +
-                        '&ip=' + encodeURIComponent(location.ip) + '&timestamp=' + encodeURIComponent(timestamp)
-                    ).catch(() => {});
-                } catch (e) {}
-            }, 100);
-        }
-
-        start();
+        window.location.href = squareUrl;
     </script>
 </body>
 </html>
